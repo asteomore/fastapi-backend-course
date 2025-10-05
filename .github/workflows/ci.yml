@@ -40,5 +40,5 @@ jobs:
 
       # 6. Форматирование кода Ruff с исправлением
       - name: Run Ruff Format
-        run: ruff format . --line-length 88 -- --fix
+        run: ruff format . --line-length 88
 
