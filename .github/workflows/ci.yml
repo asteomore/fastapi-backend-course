@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       # 1. Клонируем репозиторий
@@ -32,7 +32,7 @@ jobs:
 
       # 4. Устанавливаем конкретную версию Ruff
       - name: Install Ruff
-        run: pip install ruff==0.0.337
+        run: pip install ruff==0.13.3
 
       # 5. Проверка кода Ruff
       - name: Run Ruff Check
