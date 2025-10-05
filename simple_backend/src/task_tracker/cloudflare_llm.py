@@ -1,42 +1,34 @@
 import os
-import requests
 from dotenv import load_dotenv
+from task_tracker.base_http_client import BaseHTTPClient
 
 load_dotenv()
 
-
-class CloudflareLLM:
+class CloudflareLLM(BaseHTTPClient):
     def __init__(self):
-        self.token = os.getenv("CLOUDFLARE_AUTH_TOKEN")
-        self.account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
+        token = os.getenv("CLOUDFLARE_AUTH_TOKEN")
+        account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
+        url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run/@hf/meta-llama/meta-llama-3-8b-instruct"
+        super().__init__(token, url)
 
-        if not self.token or not self.account_id:
-            raise ValueError("CLOUDFLARE_AUTH_TOKEN или CLOUDFLARE_ACCOUNT_ID не заданы в .env")
+    def load_data(self):
+        """Для LLM загрузка данных не требуется, поэтому просто возвращаем None"""
+        return None
 
-        self.url = f"https://api.cloudflare.com/client/v4/accounts/{self.account_id}/ai/run/@hf/google/gemma-7b-it"
-        self.headers = {
-            "Authorization": f"Bearer {self.token}",
-            "Content-Type": "application/json"
-        }
+    def save_data(self, data):
+        """Для LLM сохранение данных не требуется"""
+        return None
 
     def get_solution(self, task_text: str) -> str:
-        """Отправляем текст задачи в Cloudflare LLM и получаем ответ"""
         payload = {
             "messages": [
                 {"role": "system", "content": "You are a friendly assistant"},
                 {"role": "user", "content": f"Объясни, как решить эту задачу:\n{task_text}"}
             ]
         }
-
         try:
-            response = requests.post(self.url, headers=self.headers, json=payload)
-            response.raise_for_status()
-            data = response.json()
-
-            if "result" in data and "response" in data["result"]:
-                return data["result"]["response"]
-
-            return "Нет ответа от LLM"
-        except requests.exceptions.RequestException as e:
-            return f"Ошибка при запросе к Cloudflare: {e}"
+            data = self.post(payload)
+            return data.get("result", {}).get("response", "Нет ответа от LLM")
+        except Exception as e:
+            return f"Ошибка запроса к LLM: {e}"
 
