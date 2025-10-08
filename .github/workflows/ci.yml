@@ -2,26 +2,23 @@ name: Python CI - Ruff
 
 on:
   push:
-    branches: [ main, second-branch ]  # запускается при пуше в main и second-branch
+    branches: [ main, second-branch ]
   pull_request:
-    branches: [ main ]                 # запускается для PR с любой ветки на main
+    branches: [ main ]
 
 jobs:
   lint:
     runs-on: ubuntu-22.04
 
     steps:
-      # 1. Клонируем репозиторий
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Устанавливаем Python 3.11
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: 3.13
 
-      # 3. Кэшируем pip-пакеты
       - name: Cache pip packages
         uses: actions/cache@v3
         with:
@@ -30,15 +27,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # 4. Устанавливаем конкретную версию Ruff
       - name: Install Ruff
         run: pip install ruff==0.13.3
 
-      # 5. Проверка кода Ruff
       - name: Run Ruff Check
         run: ruff check . --line-length 88 --select E,F,W --show-files
-
-      # 6. Форматирование кода Ruff с исправлением
-      - name: Run Ruff Format
-        run: ruff format . --line-length 88
-
